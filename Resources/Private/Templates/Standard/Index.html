@@ -6,10 +6,14 @@
 	<h1>A freshly created Fluid template!</h1>
 	<p>Some data set by the controller:</p>
 	<ul>
-		
-		<f:for each="{foos}" as="foo">
-			<li>{foo}</li>
+
+		<f:for each="{packages}" as="package">
+			<li>
+				<f:link.action action="translate" arguments="{packageKey: package.packageKey}">
+					{package.packageKey}
+				</f:link.action>
+			</li>
 		</f:for>
-		
+
 	</ul>
 </f:section>

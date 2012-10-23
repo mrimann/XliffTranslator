@@ -9,11 +9,17 @@ namespace Mrimann\XliffTranslator\Controller;
 use TYPO3\Flow\Annotations as Flow;
 
 /**
- * Standard controller for the Mrimann.XliffTranslator package 
+ * Standard controller for the Mrimann.XliffTranslator package
  *
  * @Flow\Scope("singleton")
  */
 class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
+
+	/**
+	 * @Flow\Inject
+	 * @var \TYPO3\Flow\Package\PackageManagerInterface
+	 */
+	protected $packageManager;
 
 	/**
 	 * Index action
@@ -21,9 +27,8 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 	 * @return void
 	 */
 	public function indexAction() {
-		$this->view->assign('foos', array(
-			'bar', 'baz'
-		));
+		$packages = $this->packageManager->getActivePackages();
+		$this->view->assign('packages', $packages);
 	}
 
 }

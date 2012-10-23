@@ -1,0 +1,19 @@
+#                                                                                  #
+# Default subroutes configuration for the Mrimann.XliffTranslator package          #
+#                                                                                  #
+
+-
+  name: 'foo'
+  uriPattern: 'mrimann.xlifftranslator/{@controller}(/{@action})'
+  defaults:
+    '@controller': 'Standard'
+    '@action':     'index'
+  appendExceedingArguments: true
+
+-
+  name: 'bar'
+  uriPattern: 'mrimann.xlifftranslator'
+  defaults:
+    '@controller': 'Standard'
+    '@action':     'index'
+
