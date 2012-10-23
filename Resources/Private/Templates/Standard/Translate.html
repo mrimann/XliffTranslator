@@ -1,0 +1,31 @@
+<f:layout name="Default" />
+
+<f:section name="Title">Let's translate {packageKey}</f:section>
+
+<f:section name="Content">
+	<p>PackageKey: {packageKey}</p>
+
+	<f:if condition="{readyForTranslating}">
+		<f:then>
+			ready
+		</f:then>
+		<f:else>
+			<f:for each="{languages}" as="fromLanguage">
+				<f:for each="{languages}" as="toLanguage">
+					<f:if condition="{0: toLanguage} == {0: fromLanguage}">
+						<f:then>
+
+						</f:then>
+						<f:else>
+							<li>
+								<f:link.action action="translate" arguments="{packageKey: packageKey, fromLang: fromLanguage, toLang: toLanguage}">
+									{packageKey} from "{fromLanguage}" to "{toLanguage}"
+								</f:link.action>
+							</li>
+						</f:else>
+					</f:if>
+				</f:for>
+			</f:for>
+		</f:else>
+	</f:if>
+</f:section>

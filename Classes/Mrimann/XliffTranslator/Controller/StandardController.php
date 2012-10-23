@@ -31,6 +31,23 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 		$this->view->assign('packages', $packages);
 	}
 
+	/**
+	 * Renders the form to translate a specific Xliff file from language A to language B
+	 *
+	 * @param string $packageKey
+	 * @param string $fromLang
+	 * @param string $toLang
+	 */
+	public function translateAction($packageKey = '', $fromLang = '', $toLang = '') {
+		if ($fromLang != '' && $toLang != '') {
+			$this->view->assign('readyForTranslating', TRUE);
+		}
+		$this->view->assign('packageKey', $packageKey);
+		$this->view->assign('languages', explode(',', $this->settings['availableLanguages']));
+		$this->view->assign('fromLang', $fromLang);
+		$this->view->assign('toLang', $toLang);
+	}
+
 }
 
 ?>
