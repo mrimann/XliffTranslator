@@ -3,11 +3,16 @@
 <f:section name="Title">Let's translate {packageKey}</f:section>
 
 <f:section name="Content">
-	<p>PackageKey: {packageKey}</p>
+	<p>PackageKey: <b>{packageKey}</b></p>
+	<p>Translating from <b>{fromLang}</b> to <b>{toLang}</b>.</p>
 
 	<f:if condition="{readyForTranslating}">
 		<f:then>
-			ready
+			<f:if condition="{translationMatrix}">
+				<f:for each="{translationMatrix}" as="translationUnit">
+					<f:render partial="translationUnit" arguments="{translationUnit: translationUnit}" />
+				</f:for>
+			</f:if>
 		</f:then>
 		<f:else>
 			<f:for each="{languages}" as="fromLanguage">

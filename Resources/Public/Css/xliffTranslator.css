@@ -1,0 +1,19 @@
+.row {
+    border-left: 5px solid green;
+    border-right: 5px solid green;
+    background-color: #90ee90;
+    display: inline-block;
+
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.row.nonTranslated {
+    border-color: red;
+    background-color: #f08080;
+}
+
+.row.modified {
+    border-color: red;
+    background-color: yellow;
+}

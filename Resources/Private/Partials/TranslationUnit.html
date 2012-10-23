@@ -1,0 +1,19 @@
+<div class="row {translationUnit.class}">
+	<div class="span5">
+		From:<br />
+		{translationUnit.source}
+	</div>
+	<div class="span5">
+		<f:if condition="{translationUnit.originalModified}">
+			<f:then>
+				Old-Original: {translationUnit.originalSource}<br />
+				To:<br />
+				{translationUnit.target}
+			</f:then>
+			<f:else>
+				To:<br />
+				{translationUnit.target}
+			</f:else>
+		</f:if>
+	</div>
+</div>
