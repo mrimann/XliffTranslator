@@ -1,9 +1,16 @@
 {
 	"name": "mrimann\/xlifftranslator",
 	"type": "typo3-flow-package",
-	"description": "",
+	"description": "Little helper that allows the developer to locally translate the Xliff files of his package(s).",
+	"authors" : [
+		{
+			"name": "Mario Rimann",
+			"email": "mario.rimann@typo3.org"
+		}
+	],
 	"require": {
-		"typo3\/flow": "*"
+		"typo3/flow": "*",
+		"typo3/twitter-bootstrap": "*"
 	},
 	"autoload": {
 		"psr-0": {
