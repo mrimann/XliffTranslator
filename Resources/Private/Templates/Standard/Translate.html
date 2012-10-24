@@ -9,9 +9,16 @@
 	<f:if condition="{readyForTranslating}">
 		<f:then>
 			<f:if condition="{translationMatrix}">
-				<f:for each="{translationMatrix}" as="translationUnit">
-					<f:render partial="translationUnit" arguments="{translationUnit: translationUnit}" />
-				</f:for>
+				<f:form action="saveTranslations" arguments="{packageKey: packageKey, fromLang: fromLang, toLang: toLang}" >
+					<f:for each="{translationMatrix}" as="translationUnit">
+						<f:render partial="translationUnit" arguments="{translationUnit: translationUnit, toLang: toLang}" />
+					</f:for>
+					<div class="row">
+						<div class="span2 offset9">
+							<f:form.submit class="btn btn-primary" value="Save Translations" />
+						</div>
+					</div>
+				</f:form>
 			</f:if>
 		</f:then>
 		<f:else>

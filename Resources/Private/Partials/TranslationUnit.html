@@ -1,5 +1,4 @@
-<div class="row {translationUnit.class}">
-	<div class="span5">
+<div class="row translationUnit {translationUnit.class}">
 	<f:if condition="{translationUnit.perfetto}">
 		<span class="label label-success">Translated</span>
 	</f:if>
@@ -9,20 +8,18 @@
 	<f:if condition="{translationUnit.nonTranslated}">
 		<span class="label label-important">NEW</span>
 	</f:if>
+	<div class="span4">
 		From:<br />
 		{translationUnit.source}
-	</div>
-	<div class="span5">
 		<f:if condition="{translationUnit.originalModified}">
 			<f:then>
-				Old-Original: {translationUnit.originalSource}<br />
-				To:<br />
-				{translationUnit.target}
+				Old-Original:<br />
+				{translationUnit.originalSource}
 			</f:then>
-			<f:else>
-				To:<br />
-				{translationUnit.target}
-			</f:else>
 		</f:if>
+	</div>
+	<div class="span7">
+		To:<br />
+		<f:form.textfield name="translationUnits[{translationUnit.transUnitId}][{toLang}]" value="{translationUnit.target}" class="input-xxlarge" />
 	</div>
 </div>

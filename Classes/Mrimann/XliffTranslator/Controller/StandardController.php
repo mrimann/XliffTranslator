@@ -72,6 +72,7 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 
 		foreach ($fromItems['translationUnits'] as $transUnitId => $value) {
 			$matrix[$transUnitId]['source'] = $value[0]['source'];
+			$matrix[$transUnitId]['transUnitId'] = $transUnitId;
 
 			// check if untranslated
 			if (!isset($toItems['translationUnits'][$transUnitId][0]['target'])

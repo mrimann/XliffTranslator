@@ -1,4 +1,4 @@
-.row {
+.row.translationUnit {
     border-left: 5px solid green;
     border-right: 5px solid green;
     background-color: #90ee90;
@@ -20,6 +20,11 @@
 .row.modified {
     border-color: red;
     background-color: yellow;
+}
+
+.input-xxlarge {
+    width: 510px;
+}
 
 span.label {
     position: absolute;
