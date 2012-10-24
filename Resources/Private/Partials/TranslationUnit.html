@@ -1,5 +1,14 @@
 <div class="row {translationUnit.class}">
 	<div class="span5">
+	<f:if condition="{translationUnit.perfetto}">
+		<span class="label label-success">Translated</span>
+	</f:if>
+	<f:if condition="{translationUnit.originalModified}">
+		<span class="label label-warning">Modified</span>
+	</f:if>
+	<f:if condition="{translationUnit.nonTranslated}">
+		<span class="label label-important">NEW</span>
+	</f:if>
 		From:<br />
 		{translationUnit.source}
 	</div>
