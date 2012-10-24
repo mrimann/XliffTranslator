@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file original="" source-language="en" target-language="en" datatype="plaintext">
+		<body><f:for each="{matrixToSave}" as="translationUnit">
+			<trans-unit id="{translationUnit.transUnitId}">
+				<source>{translationUnit.source}</source>
+				<target>{translationUnit.target}</target>
+			</trans-unit></f:for>
+		</body>
+	</file>
+</xliff>

@@ -108,6 +108,41 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 		return $result;
 		return new \TYPO3\Flow\I18n\Xliff\XliffModel($sourcePath, $foundLocale);
 	}
+
+	/**
+	 * Saves the translations from the translation form
+	 *
+	 * @param string $packageKey
+	 * @param string $fromLang
+	 * @param string $toLang
+	 * @param array $translationUnits
+	 */
+	public function saveTranslationsAction($packageKey, $fromLang, $toLang, array $translationUnits) {
+		$originalMatrix = $this->generateTranslationMatrix($packageKey, $fromLang, $toLang);
+		$matrixToSave = array();
+
+		foreach ($translationUnits as $translationUnit => $value) {
+			if (isset($value[$toLang]) && $value[$toLang] != '') {
+				$matrixToSave[$translationUnit] = $originalMatrix[$translationUnit];
+				if (isset($matrixToSave[$translationUnit]['target'])) {
+					$matrixToSave[$translationUnit]['oldTarget'] = $matrixToSave[$translationUnit]['target'];
+				}
+				$matrixToSave[$translationUnit]['target'] = $value[$toLang];
+			}
+		}
+
+		// Create the Xliff file to be written to disk later on
+		$xliffView = new \TYPO3\Fluid\View\TemplateView();
+		$path = 'resource://Mrimann.XliffTranslator/Private/Templates/Standard/Xliff.xlf';
+
+		$xliffView->setControllerContext($this->getControllerContext());
+		$xliffView->setTemplatePathAndFilename($path);
+ 		$xliffView->assign('matrixToSave', $matrixToSave);
+
+		// temporary debug output...
+		echo '<textarea rows="" cols="">' . $xliffView->render() . '</textarea>';
+die();
+	}
 }
 
 ?>
