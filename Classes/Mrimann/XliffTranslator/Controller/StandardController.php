@@ -139,6 +139,9 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 		$xliffView->setTemplatePathAndFilename($path);
  		$xliffView->assign('matrixToSave', $matrixToSave);
 
+		// backup the original file before overwriting
+		$this->backupXliffFile($packageKey, $toLang);
+
 		// write the file
 		$outputPath = $this->getFilePath($packageKey, $toLang);
 		fopen($outputPath, 'w');
@@ -157,6 +160,20 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 	 */
 	protected function getFilePath($packageKey, $language) {
 		return $this->packageManager->getPackage($packageKey)->getPackagePath() . 'Resources/Private/Translations/' . $language . '/Main.xlf';
+	}
+
+	/**
+	 * Creates a backup file of the existing Xliff file before it gets overwritten
+	 * by the new data later on.
+	 *
+	 * @param string $packageKey
+	 * @param string $language
+	 */
+	protected function backupXliffFile($packageKey, $language) {
+		copy(
+			$this->getFilePath($packageKey, $language),
+			$this->getFilePath($packageKey, $language) . '_backup_' . time()
+		);
 	}
 }
 
