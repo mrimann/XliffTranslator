@@ -139,9 +139,24 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 		$xliffView->setTemplatePathAndFilename($path);
  		$xliffView->assign('matrixToSave', $matrixToSave);
 
-		// temporary debug output...
-		echo '<textarea rows="" cols="">' . $xliffView->render() . '</textarea>';
-die();
+		// write the file
+		$outputPath = $this->getFilePath($packageKey, $toLang);
+		fopen($outputPath, 'w');
+		file_put_contents($outputPath, $xliffView->render());
+
+		die();
+	}
+
+	/**
+	 * Gets the full filesystem path to an Xliff file of a specified language within
+	 * a specific package.
+	 *
+	 * @param string $packageKey
+	 * @param string $language
+	 * @return string
+	 */
+	protected function getFilePath($packageKey, $language) {
+		return $this->packageManager->getPackage($packageKey)->getPackagePath() . 'Resources/Private/Translations/' . $language . '/Main.xlf';
 	}
 }
 
