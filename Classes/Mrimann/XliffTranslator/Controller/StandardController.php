@@ -156,7 +156,23 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 		fopen($outputPath, 'w');
 		file_put_contents($outputPath, $xliffView->render());
 
-		die();
+		// redirect the user back to the translation page
+		$this->addFlashMessage(
+			'Your translations were successfully saved!',
+			'Yippie!',
+			'OK'
+		);
+
+		$this->redirect(
+			'translate',
+			'Standard',
+			'Mrimann.XliffTranslator',
+			array(
+				'packageKey' => $packageKey,
+				'fromLang' => $fromLang,
+				'toLang' => $toLang
+			)
+		);
 	}
 
 	/**

@@ -1,3 +1,5 @@
+{namespace xliffTranslator=Mrimann\XliffTranslator\ViewHelpers}
+
 <f:layout name="Default" />
 
 <f:section name="Title">Let's translate {packageKey}</f:section>
@@ -5,6 +7,10 @@
 <f:section name="Content">
 	<p>PackageKey: <b>{packageKey}</b></p>
 	<p>Translating from <b>{fromLang}</b> to <b>{toLang}</b>.</p>
+
+	<div class="row">
+		<xliffTranslator:flashMessages />
+	</div>
 
 	<f:if condition="{readyForTranslating}">
 		<f:then>
