@@ -1,4 +1,5 @@
 Mrimann:
   XliffTranslator:
+    defaultLanguage: en
     availableLanguages: en,de
     packagesToExclude: Doctrine.ORM, Doctrine.Common, Doctrine.DBAL, TYPO3.Flow, TYPO3.Fluid, TYPO3.Kickstart, TYPO3.Party, TYPO3.Surf, doctrine.migrations,  symfony.domcrawler, symfony.yaml, typo3.flowcomposerinstallers, mikey179.vfsStream

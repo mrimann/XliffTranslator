@@ -45,11 +45,36 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 		$packages = array();
 		$packagesToExclude = \TYPO3\Flow\Utility\Arrays::trimExplode(',', $this->settings['packagesToExclude']);
 		foreach ($allPackages as $package) {
-			if (!in_array($package->getPackageKey(), $packagesToExclude)) {
+			if (!in_array($package->getPackageKey(), $packagesToExclude)
+				&& $this->hasXliffFilesInDefaultDirectories($package)
+			) {
 				$packages[] = $package;
 			}
 		}
 		$this->view->assign('packages', $packages);
+	}
+
+	/**
+	 * Checks if a package is qualified to be shown for translations (e.g. the default
+	 * directories and the file exists.
+	 *
+	 * The check depends on the default language from the configuration!
+	 *
+	 * @param \TYPO3\Flow\Package\Package $package
+	 * @return boolean
+	 */
+	protected function hasXliffFilesInDefaultDirectories(\TYPO3\Flow\Package\Package $package) {
+		$packageBasePath = $package->getResourcesPath();
+		$defaultLanguage = $this->settings['defaultLanguage'];
+
+		if (is_dir($packageBasePath . 'Private/Translations')
+			&& is_dir($packageBasePath . 'Private/Translations/' . $defaultLanguage)
+			&& is_file($packageBasePath . 'Private/Translations/' . $defaultLanguage . '/Main.xlf')
+		) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
