@@ -39,7 +39,16 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 	 * @return void
 	 */
 	public function indexAction() {
-		$packages = $this->packageManager->getActivePackages();
+		$allPackages = $this->packageManager->getActivePackages();
+
+		// make sure the packages of the framework are excluded depending on our settings
+		$packages = array();
+		$packagesToExclude = \TYPO3\Flow\Utility\Arrays::trimExplode(',', $this->settings['packagesToExclude']);
+		foreach ($allPackages as $package) {
+			if (!in_array($package->getPackageKey(), $packagesToExclude)) {
+				$packages[] = $package;
+			}
+		}
 		$this->view->assign('packages', $packages);
 	}
 
