@@ -62,6 +62,19 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 		}
 	}
 
+	/**
+	 * Generates a multi-dimensional array, the matrix, containing all translations units from the
+	 * source language, combined with (where existing) the translated snippets in the target
+	 * language.
+	 *
+	 * For each translation unit, the status is stated in the matrix (new and untranslated, modified
+	 * or already translated)
+	 *
+	 * @param string the package key
+	 * @param string the source language's language key
+	 * @param string the target language's language key
+	 * @return array the translation matrix
+	 */
 	protected function generateTranslationMatrix($packageKey, $fromLang, $toLang) {
 		$fromLocale = new \TYPO3\Flow\I18n\Locale($fromLang);
 		$fromItems = $this->getModel($packageKey, 'Main', $fromLocale);
