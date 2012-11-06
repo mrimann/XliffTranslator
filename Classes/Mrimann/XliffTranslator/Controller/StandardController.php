@@ -124,8 +124,7 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 		$sourcePath = \TYPO3\Flow\Utility\Files::concatenatePaths(array('resource://' . $packageKey, 'Private/Translations'));
 		list($sourcePath, $foundLocale) = $this->localizationService->getXliffFilenameAndPath($sourcePath, $sourceName, $locale);
 
-		$result = $this->xliffParser->getParsedData($sourcePath);
-		return $result;
+		return $this->xliffParser->getParsedData($sourcePath);
 	}
 
 	/**
