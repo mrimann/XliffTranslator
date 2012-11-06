@@ -34,47 +34,12 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 	protected $xliffParser;
 
 	/**
-	 * Index action
+	 * The index action that shows a list of packages that are available for testing
 	 *
 	 * @return void
 	 */
 	public function indexAction() {
-		$allPackages = $this->packageManager->getActivePackages();
-
-		// make sure the packages of the framework are excluded depending on our settings
-		$packages = array();
-		$packagesToExclude = \TYPO3\Flow\Utility\Arrays::trimExplode(',', $this->settings['packagesToExclude']);
-		foreach ($allPackages as $package) {
-			if (!in_array($package->getPackageKey(), $packagesToExclude)
-				&& $this->hasXliffFilesInDefaultDirectories($package)
-			) {
-				$packages[] = $package;
-			}
-		}
-		$this->view->assign('packages', $packages);
-	}
-
-	/**
-	 * Checks if a package is qualified to be shown for translations (e.g. the default
-	 * directories and the file exists.
-	 *
-	 * The check depends on the default language from the configuration!
-	 *
-	 * @param \TYPO3\Flow\Package\Package $package
-	 * @return boolean
-	 */
-	protected function hasXliffFilesInDefaultDirectories(\TYPO3\Flow\Package\Package $package) {
-		$packageBasePath = $package->getResourcesPath();
-		$defaultLanguage = $this->settings['defaultLanguage'];
-
-		if (is_dir($packageBasePath . 'Private/Translations')
-			&& is_dir($packageBasePath . 'Private/Translations/' . $defaultLanguage)
-			&& is_file($packageBasePath . 'Private/Translations/' . $defaultLanguage . '/Main.xlf')
-		) {
-			return true;
-		}
-
-		return false;
+		$this->view->assign('packages', $this->getAvailablePackages());
 	}
 
 	/**
@@ -233,6 +198,53 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 				$this->getFilePath($packageKey, $language) . '_backup_' . time()
 			);
 		}
+	}
+
+	/**
+	 * Returns an array of packages that are available for translation.
+	 *
+	 * The list includes basically every active package
+	 * - minus the ones that are excluded in the configuration
+	 * - minus the ones that don't have the needed translation files
+	 *
+	 * @return array all the available packages
+	 */
+	protected function getAvailablePackages() {
+		$allPackages = $this->packageManager->getActivePackages();
+
+		// make sure the packages of the framework are excluded depending on our settings
+		$packages = array();
+		$packagesToExclude = \TYPO3\Flow\Utility\Arrays::trimExplode(',', $this->settings['packagesToExclude']);
+		foreach ($allPackages as $package) {
+			if (!in_array($package->getPackageKey(), $packagesToExclude)
+				&& $this->hasXliffFilesInDefaultDirectories($package)
+			) {
+				$packages[] = $package;
+			}
+		}
+	}
+
+	/**
+	 * Checks if a package is qualified to be shown for translations (e.g. the default
+	 * directories and the file exists.
+	 *
+	 * The check depends on the default language from the configuration!
+	 *
+	 * @param \TYPO3\Flow\Package\Package $package
+	 * @return boolean
+	 */
+	protected function hasXliffFilesInDefaultDirectories(\TYPO3\Flow\Package\Package $package) {
+		$packageBasePath = $package->getResourcesPath();
+		$defaultLanguage = $this->settings['defaultLanguage'];
+
+		if (is_dir($packageBasePath . 'Private/Translations')
+			&& is_dir($packageBasePath . 'Private/Translations/' . $defaultLanguage)
+			&& is_file($packageBasePath . 'Private/Translations/' . $defaultLanguage . '/Main.xlf')
+		) {
+			return true;
+		}
+
+		return false;
 	}
 }
 
