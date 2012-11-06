@@ -30,6 +30,8 @@ As soon as you've installed this package to your system
 
 Maybe you need to change some of the pre-sets in the settings of the XliffTranslator, the next section will describe how to do so.
 
+Upon clicking the "save translations" button, a copy of a the existing target file is created (into the same directory) for safety reasons and then the new version of the localizations are saved. As you're with some source code versioning tool like e.g. Git (at least I expect you to do so), you'll now see the modifications that the translations have brought up. If you like the result, go ahead and commit them to your package.
+
 ## Configuration options
 
 - defaultLanguage: en
