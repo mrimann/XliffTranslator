@@ -32,8 +32,17 @@ Maybe you need to change some of the pre-sets in the settings of the XliffTransl
 
 ## Configuration options
 
-to be documented...
+- defaultLanguage: en
 
+	Sets the default language used to check for listing the available packages. If you e.g. use any other language as the default language for your package, set this to your source language.
+
+- availableLanguages: en,de
+
+	Defines the languages for which source/target combinations are built so you can choose which language you want to translate to. This option is the one you'll most probably modify to suit your specific needs.
+
+- packagesToExclude: <comma-separated list of package keys>
+
+	By default all the packages from the Framework are listed here and thus "hidden" from the list of packages that are available for translation. This should shorten the list to a level where only your own package(s) is/are shown.
 
 ## How to contribute?
 
