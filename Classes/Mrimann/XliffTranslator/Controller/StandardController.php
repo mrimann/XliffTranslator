@@ -77,10 +77,10 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 	 */
 	protected function generateTranslationMatrix($packageKey, $fromLang, $toLang) {
 		$fromLocale = new \TYPO3\Flow\I18n\Locale($fromLang);
-		$fromItems = $this->getModel($packageKey, 'Main', $fromLocale);
+		$fromItems = $this->getXliffDataAsArray($packageKey, 'Main', $fromLocale);
 
 		$toLocale = new \TYPO3\Flow\I18n\Locale($toLang);
-		$toItems = $this->getModel($packageKey, 'Main', $toLocale);
+		$toItems = $this->getXliffDataAsArray($packageKey, 'Main', $toLocale);
 
 		foreach ($fromItems['translationUnits'] as $transUnitId => $value) {
 			$matrix[$transUnitId]['source'] = $value[0]['source'];
@@ -111,14 +111,21 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 		return $matrix;
 	}
 
-
-	protected function getModel($packageKey, $sourceName, \TYPO3\Flow\I18n\Locale $locale) {
+	/**
+	 * Reads a particular Xliff file and returns it's translation units as array entries
+	 *
+	 * @param string the package key
+	 * @param string the source name (e.g. filename)
+	 * @param \TYPO3\Flow\I18n\Locale the locale
+	 *
+	 * @return array
+	 */
+	protected function getXliffDataAsArray($packageKey, $sourceName, \TYPO3\Flow\I18n\Locale $locale) {
 		$sourcePath = \TYPO3\Flow\Utility\Files::concatenatePaths(array('resource://' . $packageKey, 'Private/Translations'));
 		list($sourcePath, $foundLocale) = $this->localizationService->getXliffFilenameAndPath($sourcePath, $sourceName, $locale);
 
 		$result = $this->xliffParser->getParsedData($sourcePath);
 		return $result;
-		return new \TYPO3\Flow\I18n\Xliff\XliffModel($sourcePath, $foundLocale);
 	}
 
 	/**
