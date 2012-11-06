@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file original="" product-name="Mrimann.XliffTranslator" source-language="en" datatype="plaintext">
+		<body>
+			<trans-unit id="someUntranslatedText" xml:space="preserve">
+				<source>This text exists in the source language.</source>
+			</trans-unit>
+			<trans-unit id="someUpdatedTextInTheDefaultLanguage" xml:space="preserve">
+				<source>Lorem ipsum dolor sit amet. Consectetuer adispiscint elit!</source>
+			</trans-unit>
+			<trans-unit id="someTranslatedText" xml:space="preserve">
+				<source>Translating is not the developers beloved task... But it needs to be done to spread the word :-)</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

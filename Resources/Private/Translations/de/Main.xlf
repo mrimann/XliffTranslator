@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file original="" source-language="en" target-language="en" datatype="plaintext">
+		<body>
+			<trans-unit id="someUpdatedTextInTheDefaultLanguage">
+				<source>Lorem ipsum dolor sit amet.</source>
+				<target>Lorem ipsum dolor sit amet.</target>
+			</trans-unit>
+			<trans-unit id="someTranslatedText">
+				<source>Translating is not the developers beloved task... But it needs to be done to spread the word :-)</source>
+				<target>Übersetzen ist nicht des Entwicklers Lieblingsbeschäftigung - aber es muss getan werden um seine Software weltweit bekannt zu machen!</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
