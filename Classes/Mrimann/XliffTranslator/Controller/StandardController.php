@@ -176,9 +176,16 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 		// backup the original file before overwriting
 		$this->backupXliffFile($packageKey, $toLang);
 
+		// check if the file exists (or create an empty file in case these are the first translations)
+		if (!is_dir(dirname($this->getFilePath($packageKey, $toLang)))) {
+			mkdir(dirname($this->getFilePath($packageKey, $toLang)));
+		}
+		if (!is_file($this->getFilePath($packageKey, $toLang))) {
+			touch($this->getFilePath($packageKey, $toLang));
+		}
+
 		// write the file
 		$outputPath = $this->getFilePath($packageKey, $toLang);
-		fopen($outputPath, 'w');
 		file_put_contents($outputPath, $xliffView->render());
 
 		// redirect the user back to the translation page
@@ -220,10 +227,12 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 	 * @param string $language
 	 */
 	protected function backupXliffFile($packageKey, $language) {
-		copy(
-			$this->getFilePath($packageKey, $language),
-			$this->getFilePath($packageKey, $language) . '_backup_' . time()
-		);
+		if (is_file($this->getFilePath($packageKey, $language))) {
+			copy(
+				$this->getFilePath($packageKey, $language),
+				$this->getFilePath($packageKey, $language) . '_backup_' . time()
+			);
+		}
 	}
 }
 
