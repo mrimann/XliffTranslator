@@ -17,7 +17,7 @@
 			<f:if condition="{translationMatrix}">
 				<f:form action="saveTranslations" arguments="{packageKey: packageKey, fromLang: fromLang, toLang: toLang}" >
 					<f:for each="{translationMatrix}" as="translationUnit">
-						<f:render partial="translationUnit" arguments="{translationUnit: translationUnit, toLang: toLang}" />
+						<f:render partial="TranslationUnit" arguments="{translationUnit: translationUnit, toLang: toLang}" />
 					</f:for>
 					<div class="row">
 						<div class="span2 offset9">
