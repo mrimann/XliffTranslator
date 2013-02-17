@@ -9,7 +9,8 @@
 	"authors" : [
 		{
 			"name": "Mario Rimann",
-			"email": "mario.rimann@typo3.org"
+			"email": "mario.rimann@typo3.org",
+			"homepage": "http://rimann.org/"
 		}
 	],
 	"require": {
