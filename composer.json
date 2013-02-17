@@ -2,6 +2,7 @@
 	"name": "mrimann\/xlifftranslator",
 	"type": "typo3-flow-package",
 	"description": "Little helper that allows the developer to locally translate the Xliff files of his package(s).",
+	"license": "MIT",
 	"authors" : [
 		{
 			"name": "Mario Rimann",

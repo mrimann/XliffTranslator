@@ -58,4 +58,4 @@ Yes, please! And if you save some of your precious time with this package, I'd b
 
 ## License
 
-To be decided... (In general: Do whatever you want with it - but don't blame me if you break something)
+Licensed under the permissive [MIT license](http://opensource.org/licenses/MIT) - have fun with it!
