@@ -54,7 +54,7 @@ In case you want to discuss a new feature with me, just send me an e-mail.
 
 ## Can I use it in commercial projects?
 
-Yes, please! And if you save some of your precious time with this package, I'd be very happy if you give something back - be it a warm "Thank you" by mail, spending me a drink at a conference, send me a post card or some other surprise :-)
+Yes, please! And if you save some of your precious time with this package, I'd be very happy if you [give something back](http://www.rimann.org/support) - be it a warm "Thank you" by mail, spending me a drink at a conference, send me a post card or some other surprise :-)
 
 ## License
 
