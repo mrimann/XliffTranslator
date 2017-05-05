@@ -13,7 +13,7 @@ use TYPO3\Flow\Annotations as Flow;
  *
  * @Flow\Scope("singleton")
  */
-class XliffTranslatorService
+class XliffTranslatorService implements XliffTranslatorServiceInterface
 {
 
 	/**

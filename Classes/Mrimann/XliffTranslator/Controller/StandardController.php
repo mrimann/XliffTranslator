@@ -23,7 +23,7 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 
 	/**
 	 * @Flow\Inject
-	 * @var \Mrimann\XliffTranslator\XliffTranslatorService
+	 * @var \Mrimann\XliffTranslator\XliffTranslatorServiceInterface
 	 */
 	protected $xliffTranslatorService;
 
