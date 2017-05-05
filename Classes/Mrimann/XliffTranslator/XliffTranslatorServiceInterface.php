@@ -21,6 +21,14 @@ interface XliffTranslatorServiceInterface
     public function getAvailablePackages();
 
     /**
+     * Returns an array of files that are available for translation.
+     *
+     * @param string $packageKey package key
+     * @return array
+     */
+    public function getAvailableXliffFiles($packageKey);
+
+    /**
      * Generates a multi-dimensional array, the matrix, containing all translations units from the
      * source language, combined with (where existing) the translated snippets in the target
      * language.
@@ -28,9 +36,10 @@ interface XliffTranslatorServiceInterface
      * @param string $packageKey package key
      * @param string $fromLang source language's language key
      * @param string $toLang target language's language key
+     * @param string $sourceName file name
      * @return array the translation matrix
      */
-    public function generateTranslationMatrix($packageKey, $fromLang, $toLang);
+    public function generateTranslationMatrix($packageKey, $fromLang, $toLang, $sourceName = 'Main');
 
     /**
      * Returns the translations matrix to be saved
@@ -39,10 +48,11 @@ interface XliffTranslatorServiceInterface
      * @param string $fromLang
      * @param string $toLang
      * @param array $translationUnits
+     * @param string $sourceName file name
      *
      * @return array
      */
-    public function getTranslationMatrixToSave($packageKey, $fromLang, $toLang, array $translationUnits);
+    public function getTranslationMatrixToSave($packageKey, $fromLang, $toLang, array $translationUnits, $sourceName = 'Main');
 
     /**
      * Saves the new Xliff file
@@ -50,7 +60,8 @@ interface XliffTranslatorServiceInterface
      * @param string $packageKey
      * @param string $language
      * @param string $content
+     * @param string $sourceName file name
      */
-    public function saveXliffFile($packageKey, $language, $content);
+    public function saveXliffFile($packageKey, $language, $content, $sourceName = 'Main');
 
 }

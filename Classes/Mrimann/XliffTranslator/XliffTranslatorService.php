@@ -17,7 +17,7 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 {
 
 	/**
-	 * @Flow\InjectConfiguration
+	 * @Flow\InjectConfiguration(package="Mrimann.XliffTranslator")
 	 * @var array
 	 */
 	protected $settings;
@@ -67,6 +67,19 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 		return $packages;
 	}
 
+    /**
+     * Returns an array of files that are available for translation.
+     *
+     * @param string $packageKey package key
+     * @return array
+     */
+    public function getAvailableXliffFiles($packageKey) {
+        $defaultLanguage = $this->settings['defaultLanguage'];
+        $resourcePath = $this->packageManager->getPackage($packageKey)->getResourcesPath();
+
+        return glob($resourcePath . 'Private/Translations/' . $defaultLanguage . '/*.xlf');
+    }
+
 	/**
 	 * Generates a multi-dimensional array, the matrix, containing all translations units from the
 	 * source language, combined with (where existing) the translated snippets in the target
@@ -78,15 +91,16 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 	 * @param string $packageKey package key
 	 * @param string $fromLang source language's language key
 	 * @param string $toLang target language's language key
+     * @param string $sourceName name of the xlf source file
 	 * @return array the translation matrix
 	 */
-	public function generateTranslationMatrix($packageKey, $fromLang, $toLang) {
+	public function generateTranslationMatrix($packageKey, $fromLang, $toLang, $sourceName = 'Main') {
 		$matrix = array();
 		$fromLocale = new \TYPO3\Flow\I18n\Locale($fromLang);
-		$fromItems = $this->getXliffDataAsArray($packageKey, 'Main', $fromLocale);
+		$fromItems = $this->getXliffDataAsArray($packageKey, $sourceName, $fromLocale);
 
 		$toLocale = new \TYPO3\Flow\I18n\Locale($toLang);
-		$toItems = $this->getXliffDataAsArray($packageKey, 'Main', $toLocale);
+		$toItems = $this->getXliffDataAsArray($packageKey, $sourceName, $toLocale);
 
 		foreach ($fromItems['translationUnits'] as $transUnitId => $value) {
 			$matrix[$transUnitId]['source'] = $value[0]['source'];
@@ -124,11 +138,12 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 	 * @param string $fromLang
 	 * @param string $toLang
 	 * @param array $translationUnits
+     * @param string $sourceName
 	 *
 	 * @return array
 	 */
-	public function getTranslationMatrixToSave($packageKey, $fromLang, $toLang, array $translationUnits) {
-		$originalMatrix = $this->generateTranslationMatrix($packageKey, $fromLang, $toLang);
+	public function getTranslationMatrixToSave($packageKey, $fromLang, $toLang, array $translationUnits, $sourceName = 'Main') {
+		$originalMatrix = $this->generateTranslationMatrix($packageKey, $fromLang, $toLang, $sourceName);
 		$matrixToSave = array();
 
 		foreach ($translationUnits as $translationUnit => $value) {
@@ -149,21 +164,22 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 	 * @param string $packageKey
 	 * @param string $language
 	 * @param string $content
+     * @param string $sourceName
 	 */
-	public function saveXliffFile($packageKey, $language, $content) {
+	public function saveXliffFile($packageKey, $language, $content, $sourceName = 'Main') {
 		// backup the original file before overwriting
-		$this->backupXliffFile($packageKey, $language);
+		$this->backupXliffFile($packageKey, $language, $sourceName);
+        $outputPath = $this->getFilePath($packageKey, $language, $sourceName);
 
 		// check if the file exists (or create an empty file in case these are the first translations)
-		if (!is_dir(dirname($this->getFilePath($packageKey, $language)))) {
-			mkdir(dirname($this->getFilePath($packageKey, $language)));
+		if (!is_dir(dirname($outputPath))) {
+			mkdir(dirname($outputPath), 0777, true);
 		}
-		if (!is_file($this->getFilePath($packageKey, $language))) {
-			touch($this->getFilePath($packageKey, $language));
+		if (!is_file($outputPath)) {
+			touch($outputPath);
 		}
 
-		// write the file
-		$outputPath = $this->getFilePath($packageKey, $language);
+        // write the file
 		file_put_contents($outputPath, $content);
 	}
 
@@ -195,10 +211,9 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 	protected function hasXliffFilesInDefaultDirectories(\TYPO3\Flow\Package\Package $package) {
 		$packageBasePath = $package->getResourcesPath();
 		$defaultLanguage = $this->settings['defaultLanguage'];
-
 		if (is_dir($packageBasePath . 'Private/Translations')
 			&& is_dir($packageBasePath . 'Private/Translations/' . $defaultLanguage)
-			&& is_file($packageBasePath . 'Private/Translations/' . $defaultLanguage . '/Main.xlf')
+			&& !empty($this->getAvailableXliffFiles($package->getPackageKey()))
 		) {
 			return true;
 		}
@@ -212,10 +227,11 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 	 *
 	 * @param string $packageKey
 	 * @param string $language
+     * @param string $sourceName
 	 * @return string
 	 */
-	protected function getFilePath($packageKey, $language) {
-		return $this->packageManager->getPackage($packageKey)->getPackagePath() . 'Resources/Private/Translations/' . $language . '/Main.xlf';
+	protected function getFilePath($packageKey, $language, $sourceName) {
+        return \TYPO3\Flow\Utility\Files::concatenatePaths(array($this->packageManager->getPackage($packageKey)->getResourcesPath(), 'Private/Translations/', $language, $sourceName . '.xlf'));
 	}
 
 	/**
@@ -224,13 +240,12 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 	 *
 	 * @param string $packageKey
 	 * @param string $language
+     * @param string $sourceName
 	 */
-	protected function backupXliffFile($packageKey, $language) {
-		if (is_file($this->getFilePath($packageKey, $language))) {
-			copy(
-				$this->getFilePath($packageKey, $language),
-				$this->getFilePath($packageKey, $language) . '_backup_' . time()
-			);
+	protected function backupXliffFile($packageKey, $language, $sourceName) {
+        $path = $this->getFilePath($packageKey, $language, $sourceName);
+		if (is_file($path)) {
+			copy($path, $path . '_backup_' . time());
 		}
 	}
 }

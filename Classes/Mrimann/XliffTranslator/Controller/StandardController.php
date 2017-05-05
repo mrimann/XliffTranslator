@@ -40,19 +40,25 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 	 * Renders the form to translate a specific Xliff file from language A to language B
 	 *
 	 * @param string $packageKey
+	 * @param string $sourceName
 	 * @param string $fromLang
 	 * @param string $toLang
 	 */
-	public function translateAction($packageKey = '', $fromLang = '', $toLang = '') {
+	public function translateAction($packageKey = '', $sourceName = 'Main', $fromLang = '', $toLang = '') {
 		$this->view->assign('packageKey', $packageKey);
 		$this->view->assign('languages', explode(',', $this->settings['availableLanguages']));
 		$this->view->assign('fromLang', $fromLang);
 		$this->view->assign('toLang', $toLang);
+		$this->view->assign('sourceName', $sourceName);
 
 		// check if we're ready for the actual translation
 		if ($fromLang != '' && $toLang != '') {
 			$this->view->assign('readyForTranslating', TRUE);
-			$this->view->assign('translationMatrix', $this->xliffTranslatorService->generateTranslationMatrix($packageKey, $fromLang, $toLang));
+			$this->view->assign('translationMatrix', $this->xliffTranslatorService->generateTranslationMatrix($packageKey, $fromLang, $toLang, $sourceName));
+		} else {
+			$sourceNames = $this->xliffTranslatorService->getAvailableXliffFiles($packageKey);
+			array_walk($sourceNames, function (&$v) { $v = basename($v, '.xlf'); });
+			$this->view->assign('sourceNames', $sourceNames);
 		}
 	}
 
@@ -60,12 +66,13 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 	 * Saves the translations from the translation form
 	 *
 	 * @param string $packageKey
+	 * @param string $sourceName
 	 * @param string $fromLang
 	 * @param string $toLang
 	 * @param array $translationUnits
 	 */
-	public function saveTranslationsAction($packageKey, $fromLang, $toLang, array $translationUnits) {
-		$matrixToSave = $this->xliffTranslatorService->getTranslationMatrixToSave($packageKey, $fromLang, $toLang, $translationUnits);
+	public function saveTranslationsAction($packageKey, $sourceName, $fromLang, $toLang, array $translationUnits) {
+		$matrixToSave = $this->xliffTranslatorService->getTranslationMatrixToSave($packageKey, $fromLang, $toLang, $translationUnits, $sourceName);
 
 		// Create the Xliff file to be written to disk later on
 		$xliffView = new \TYPO3\Fluid\View\TemplateView();
@@ -75,7 +82,7 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 		$xliffView->setTemplatePathAndFilename($path);
 		$xliffView->assign('matrixToSave', $matrixToSave);
 		$xliffContent = $xliffView->render();
-		$this->xliffTranslatorService->saveXliffFile($packageKey, $toLang, $xliffContent);
+		$this->xliffTranslatorService->saveXliffFile($packageKey, $toLang, $xliffContent, $sourceName);
 
 		// redirect the user back to the translation page
 		$this->addFlashMessage(
@@ -90,6 +97,7 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 			'Mrimann.XliffTranslator',
 			array(
 				'packageKey' => $packageKey,
+				'sourceName' => $sourceName,
 				'fromLang' => $fromLang,
 				'toLang' => $toLang
 			)

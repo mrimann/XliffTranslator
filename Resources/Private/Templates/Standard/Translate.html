@@ -6,7 +6,9 @@
 
 <f:section name="Content">
 	<p>PackageKey: <b>{packageKey}</b></p>
-	<p>Translating from <b>{fromLang}</b> to <b>{toLang}</b>.</p>
+	<f:if condition="{readyForTranslating}">
+		<p>Translating <b>{sourceName}</b> from <b>{fromLang}</b> to <b>{toLang}</b>.</p>
+	</f:if>
 
 	<div class="row">
 		<xliffTranslator:flashMessages />
@@ -15,7 +17,7 @@
 	<f:if condition="{readyForTranslating}">
 		<f:then>
 			<f:if condition="{translationMatrix}">
-				<f:form action="saveTranslations" arguments="{packageKey: packageKey, fromLang: fromLang, toLang: toLang}" >
+				<f:form action="saveTranslations" arguments="{packageKey: packageKey, sourceName: sourceName, fromLang: fromLang, toLang: toLang}" >
 					<f:for each="{translationMatrix}" as="translationUnit">
 						<f:render partial="TranslationUnit" arguments="{translationUnit: translationUnit, toLang: toLang}" />
 					</f:for>
@@ -28,20 +30,22 @@
 			</f:if>
 		</f:then>
 		<f:else>
-			<f:for each="{languages}" as="fromLanguage">
-				<f:for each="{languages}" as="toLanguage">
-					<f:if condition="{0: toLanguage} == {0: fromLanguage}">
-						<f:then>
+			<f:for each="{sourceNames}" as="source">
+				<f:for each="{languages}" as="fromLanguage">
+					<f:for each="{languages}" as="toLanguage">
+						<f:if condition="{0: toLanguage} == {0: fromLanguage}">
+							<f:then>
 
-						</f:then>
-						<f:else>
-							<li>
-								<f:link.action action="translate" arguments="{packageKey: packageKey, fromLang: fromLanguage, toLang: toLanguage}">
-									{packageKey} from "{fromLanguage}" to "{toLanguage}"
-								</f:link.action>
-							</li>
-						</f:else>
-					</f:if>
+							</f:then>
+							<f:else>
+								<li>
+									<f:link.action action="translate" arguments="{packageKey: packageKey, sourceName: source, fromLang: fromLanguage, toLang: toLanguage}">
+										{packageKey} "{source}" from "{fromLanguage}" to "{toLanguage}"
+									</f:link.action>
+								</li>
+							</f:else>
+						</f:if>
+					</f:for>
 				</f:for>
 			</f:for>
 		</f:else>
