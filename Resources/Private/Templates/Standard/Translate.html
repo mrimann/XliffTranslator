@@ -6,48 +6,22 @@
 
 <f:section name="Content">
 	<p>PackageKey: <b>{packageKey}</b></p>
-	<f:if condition="{readyForTranslating}">
-		<p>Translating <b>{sourceName}</b> from <b>{fromLang}</b> to <b>{toLang}</b>.</p>
-	</f:if>
+	<p>Translating <b>{sourceName}</b> from <b>{fromLang}</b> to <b>{toLang}</b>.</p>
 
 	<div class="row">
 		<xliffTranslator:flashMessages />
 	</div>
 
-	<f:if condition="{readyForTranslating}">
-		<f:then>
-			<f:if condition="{translationMatrix}">
-				<f:form action="saveTranslations" arguments="{packageKey: packageKey, sourceName: sourceName, fromLang: fromLang, toLang: toLang}" >
-					<f:for each="{translationMatrix}" as="translationUnit">
-						<f:render partial="TranslationUnit" arguments="{translationUnit: translationUnit, toLang: toLang}" />
-					</f:for>
-					<div class="row">
-						<div class="span2 offset9">
-							<f:form.submit class="btn btn-primary" value="Save Translations" />
-						</div>
-					</div>
-				</f:form>
-			</f:if>
-		</f:then>
-		<f:else>
-			<f:for each="{sourceNames}" as="source">
-				<f:for each="{languages}" as="fromLanguage">
-					<f:for each="{languages}" as="toLanguage">
-						<f:if condition="{0: toLanguage} == {0: fromLanguage}">
-							<f:then>
-
-							</f:then>
-							<f:else>
-								<li>
-									<f:link.action action="translate" arguments="{packageKey: packageKey, sourceName: source, fromLang: fromLanguage, toLang: toLanguage}">
-										{packageKey} "{source}" from "{fromLanguage}" to "{toLanguage}"
-									</f:link.action>
-								</li>
-							</f:else>
-						</f:if>
-					</f:for>
-				</f:for>
+	<f:if condition="{translationMatrix}">
+		<f:form action="saveTranslations" arguments="{packageKey: packageKey, sourceName: sourceName, fromLang: fromLang, toLang: toLang}" >
+			<f:for each="{translationMatrix}" as="translationUnit">
+				<f:render partial="TranslationUnit" arguments="{translationUnit: translationUnit, toLang: toLang}" />
 			</f:for>
-		</f:else>
+			<div class="row">
+				<div class="span2 offset9">
+					<f:form.submit class="btn btn-primary" value="Save Translations" />
+				</div>
+			</div>
+		</f:form>
 	</f:if>
 </f:section>

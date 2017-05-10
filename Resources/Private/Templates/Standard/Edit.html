@@ -1,0 +1,27 @@
+{namespace xliffTranslator=Mrimann\XliffTranslator\ViewHelpers}
+
+<f:layout name="Default" />
+
+<f:section name="Title">Let's translate {packageKey}</f:section>
+
+<f:section name="Content">
+	<p>PackageKey: <b>{packageKey}</b></p>
+	<p>Editing <b>{sourceName}</b> in <b>{editLang}</b>.</p>
+
+	<div class="row">
+		<xliffTranslator:flashMessages />
+	</div>
+
+	<f:if condition="{editMatrix}">
+		<f:form action="update" arguments="{packageKey: packageKey, sourceName: sourceName, editLang: editLang}" >
+			<f:for each="{editMatrix}" as="editUnit">
+				<f:render partial="EditUnit" arguments="{editUnit: editUnit, editLang: editLang, sourceLang: sourceLang}" />
+			</f:for>
+			<div class="row">
+				<div class="span2 offset9">
+					<f:form.submit class="btn btn-primary" value="Save Sources" />
+				</div>
+			</div>
+		</f:form>
+	</f:if>
+</f:section>

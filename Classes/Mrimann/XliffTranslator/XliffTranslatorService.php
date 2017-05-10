@@ -67,18 +67,18 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 		return $packages;
 	}
 
-    /**
-     * Returns an array of files that are available for translation.
-     *
-     * @param string $packageKey package key
-     * @return array
-     */
-    public function getAvailableXliffFiles($packageKey) {
-        $defaultLanguage = $this->settings['defaultLanguage'];
-        $resourcePath = $this->packageManager->getPackage($packageKey)->getResourcesPath();
+	/**
+	 * Returns an array of files that are available for translation.
+	 *
+	 * @param string $packageKey package key
+	 * @return array
+	 */
+	public function getAvailableXliffFiles($packageKey) {
+		$defaultLanguage = $this->settings['defaultLanguage'];
+		$resourcePath = $this->packageManager->getPackage($packageKey)->getResourcesPath();
 
-        return glob($resourcePath . 'Private/Translations/' . $defaultLanguage . '/*.xlf');
-    }
+		return glob($resourcePath . 'Private/Translations/' . $defaultLanguage . '/*.xlf');
+	}
 
 	/**
 	 * Generates a multi-dimensional array, the matrix, containing all translations units from the
@@ -91,10 +91,11 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 	 * @param string $packageKey package key
 	 * @param string $fromLang source language's language key
 	 * @param string $toLang target language's language key
-     * @param string $sourceName name of the xlf source file
+	 * @param string $sourceName name of the xlf source file
 	 * @return array the translation matrix
 	 */
-	public function generateTranslationMatrix($packageKey, $fromLang, $toLang, $sourceName = 'Main') {
+	public function generateTranslationMatrix($packageKey, $fromLang, $toLang, $sourceName = 'Main')
+	{
 		$matrix = array();
 		$fromLocale = new \TYPO3\Flow\I18n\Locale($fromLang);
 		$fromItems = $this->getXliffDataAsArray($packageKey, $sourceName, $fromLocale);
@@ -102,21 +103,32 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 		$toLocale = new \TYPO3\Flow\I18n\Locale($toLang);
 		$toItems = $this->getXliffDataAsArray($packageKey, $sourceName, $toLocale);
 
+		$fromSourceLocale = $fromItems['sourceLocale'];
+		$toSourceLocale = $toItems['sourceLocale'];
 		foreach ($fromItems['translationUnits'] as $transUnitId => $value) {
-			$matrix[$transUnitId]['source'] = $value[0]['source'];
+			if ($fromSourceLocale->getLanguage() === $fromLang) {
+				$fromValue = $value[0]['source'];
+			} else {
+				$fromValue = $value[0]['target'];
+			}
+			$matrix[$transUnitId]['source'] = $fromValue;
 			$matrix[$transUnitId]['transUnitId'] = $transUnitId;
 
+			if ($toSourceLocale->getLanguage() === $toLang) {
+				$toValue = isset($toItems['translationUnits'][$transUnitId][0]['source']) ?  $toItems['translationUnits'][$transUnitId][0]['source'] : '';
+			} else {
+				$toValue = isset($toItems['translationUnits'][$transUnitId][0]['target']) ?  $toItems['translationUnits'][$transUnitId][0]['target'] : '';
+			}
+
 			// check if untranslated
-			if (!isset($toItems['translationUnits'][$transUnitId][0]['target'])
-				|| $toItems['translationUnits'][$transUnitId][0]['target'] == ''
-			) {
+			if ($toValue == '') {
 				$matrix[$transUnitId]['target'] = '';
 				$matrix[$transUnitId]['nonTranslated'] = TRUE;
 				$matrix[$transUnitId]['class'] = 'nonTranslated';
 			} else {
-				$matrix[$transUnitId]['target'] = $toItems['translationUnits'][$transUnitId][0]['target'];
+				$matrix[$transUnitId]['target'] = $toValue;
 				// check if original text was modified
-				if ($toItems['translationUnits'][$transUnitId][0]['source'] != $value[0]['source']) {
+				if ($toSourceLocale->getLanguage() !== $toLang && $toItems['translationUnits'][$transUnitId][0]['source'] != $fromValue) {
 					$matrix[$transUnitId]['originalModified'] = TRUE;
 					$matrix[$transUnitId]['class'] = 'modified';
 					$matrix[$transUnitId]['originalSource'] = $toItems['translationUnits'][$transUnitId][0]['source'];
@@ -138,7 +150,7 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 	 * @param string $fromLang
 	 * @param string $toLang
 	 * @param array $translationUnits
-     * @param string $sourceName
+	 * @param string $sourceName
 	 *
 	 * @return array
 	 */
@@ -159,27 +171,81 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 	}
 
 	/**
+	 * Generates a multi-dimensional array, the matrix, containing all translations units to edit. This are either the
+	 * target or the source tags, depending wherever the xlf file contains a translation or not.
+	 *
+	 * @param string $packageKey package key
+	 * @param string $editLang source language's language key
+	 * @param string $sourceName name of the xlf source file
+	 * @return array
+	 */
+	public function generateEditMatrix($packageKey, $editLang, $sourceName = 'Main')
+	{
+		$matrix = array();
+		$locale = new \TYPO3\Flow\I18n\Locale($editLang);
+		$items = $this->getXliffDataAsArray($packageKey, $sourceName, $locale);
+
+		$sourceLang = $items['sourceLocale']->getLanguage();
+		foreach ($items['translationUnits'] as $unitId => $value) {
+			if ($sourceLang !== $editLang) {
+				$matrix[$unitId]['target'] = $value[0]['target'];
+			}
+			$matrix[$unitId]['source'] = $value[0]['source'];
+			$matrix[$unitId]['transUnitId'] = $unitId;
+		}
+
+		return array($sourceLang, $matrix);
+	}
+
+	/**
+	 * Returns the matrix to be saved
+	 *
+	 * @param string $packageKey
+	 * @param string $editLang
+	 * @param array $editUnits
+	 * @param string $sourceName
+	 *
+	 * @return array
+	 */
+	public function getEditMatrixToSave($packageKey, $editLang, array $editUnits, $sourceName = 'Main') {
+		list($sourceLang, $originalMatrix) = $this->generateEditMatrix($packageKey, $editLang, $sourceName);
+		$matrixToSave = array();
+		$editTag = ($sourceLang === $editLang) ? 'source' : 'target';
+		foreach ($editUnits as $editUnit => $value) {
+			if (isset($value[$editLang])) {
+				$matrixToSave[$editUnit] = $originalMatrix[$editUnit];
+				if (isset($matrixToSave[$editUnit][$editTag])) {
+					$matrixToSave[$editUnit]['old' . ucfirst($editTag)] = $matrixToSave[$editUnit][$editTag];
+				}
+				$matrixToSave[$editUnit][$editTag] = $value[$editLang];
+			}
+		}
+
+		return array($sourceLang, $matrixToSave);
+	}
+
+	/**
 	 * Saves the new Xliff file and backups the existing one
 	 *
 	 * @param string $packageKey
 	 * @param string $language
 	 * @param string $content
-     * @param string $sourceName
+	 * @param string $sourceName
 	 */
 	public function saveXliffFile($packageKey, $language, $content, $sourceName = 'Main') {
 		// backup the original file before overwriting
 		$this->backupXliffFile($packageKey, $language, $sourceName);
-        $outputPath = $this->getFilePath($packageKey, $language, $sourceName);
+		$outputPath = $this->getFilePath($packageKey, $language, $sourceName);
 
 		// check if the file exists (or create an empty file in case these are the first translations)
 		if (!is_dir(dirname($outputPath))) {
-			mkdir(dirname($outputPath), 0777, true);
+			mkdir(dirname($outputPath), 0777, TRUE);
 		}
 		if (!is_file($outputPath)) {
 			touch($outputPath);
 		}
 
-        // write the file
+		// write the file
 		file_put_contents($outputPath, $content);
 	}
 
@@ -215,10 +281,10 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 			&& is_dir($packageBasePath . 'Private/Translations/' . $defaultLanguage)
 			&& !empty($this->getAvailableXliffFiles($package->getPackageKey()))
 		) {
-			return true;
+			return TRUE;
 		}
 
-		return false;
+		return FALSE;
 	}
 
 	/**
@@ -227,11 +293,11 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 	 *
 	 * @param string $packageKey
 	 * @param string $language
-     * @param string $sourceName
+	 * @param string $sourceName
 	 * @return string
 	 */
 	protected function getFilePath($packageKey, $language, $sourceName) {
-        return \TYPO3\Flow\Utility\Files::concatenatePaths(array($this->packageManager->getPackage($packageKey)->getResourcesPath(), 'Private/Translations/', $language, $sourceName . '.xlf'));
+		return \TYPO3\Flow\Utility\Files::concatenatePaths(array($this->packageManager->getPackage($packageKey)->getResourcesPath(), 'Private/Translations/', $language, $sourceName . '.xlf'));
 	}
 
 	/**
@@ -240,10 +306,10 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 	 *
 	 * @param string $packageKey
 	 * @param string $language
-     * @param string $sourceName
+	 * @param string $sourceName
 	 */
 	protected function backupXliffFile($packageKey, $language, $sourceName) {
-        $path = $this->getFilePath($packageKey, $language, $sourceName);
+		$path = $this->getFilePath($packageKey, $language, $sourceName);
 		if (is_file($path)) {
 			copy($path, $path . '_backup_' . time());
 		}

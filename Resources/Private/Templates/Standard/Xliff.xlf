@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-	<file original="" source-language="en" target-language="en" datatype="plaintext">
+	<file original="" source-language="{sourceLang}" {f:if(condition: '{sourceLang} != {targetLang}', then: 'target-language="{targetLang}"')} datatype="plaintext">
 		<body><f:for each="{matrixToSave}" as="translationUnit">
 			<trans-unit id="{translationUnit.transUnitId}">
-				<source>{translationUnit.source}</source>
-				<target>{translationUnit.target}</target>
+				<source>{translationUnit.source}</source><f:if condition="{sourceLang} != {targetLang}">
+				<target>{translationUnit.target}</target></f:if>
 			</trans-unit></f:for>
 		</body>
 	</file>
