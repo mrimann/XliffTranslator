@@ -111,14 +111,16 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 			} else {
 				$fromValue = $value[0]['target'];
 			}
-			$matrix[$transUnitId]['source'] = $fromValue;
-			$matrix[$transUnitId]['transUnitId'] = $transUnitId;
-
 			if ($toSourceLocale->getLanguage() === $toLang) {
 				$toValue = isset($toItems['translationUnits'][$transUnitId][0]['source']) ?  $toItems['translationUnits'][$transUnitId][0]['source'] : '';
 			} else {
 				$toValue = isset($toItems['translationUnits'][$transUnitId][0]['target']) ?  $toItems['translationUnits'][$transUnitId][0]['target'] : '';
 			}
+			$this->normalizeOutputString($fromValue);
+			$this->normalizeOutputString($toValue);
+
+			$matrix[$transUnitId]['source'] = $fromValue;
+			$matrix[$transUnitId]['transUnitId'] = $transUnitId;
 
 			// check if untranslated
 			if ($toValue == '') {
@@ -131,7 +133,7 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 				if ($toSourceLocale->getLanguage() !== $toLang && $toItems['translationUnits'][$transUnitId][0]['source'] != $fromValue) {
 					$matrix[$transUnitId]['originalModified'] = TRUE;
 					$matrix[$transUnitId]['class'] = 'modified';
-					$matrix[$transUnitId]['originalSource'] = $toItems['translationUnits'][$transUnitId][0]['source'];
+					$matrix[$transUnitId]['originalSource'] = $this->normalizeOutputString($toItems['translationUnits'][$transUnitId][0]['source']);
 				} else {
 					// translation available AND original text is still the same
 					$matrix[$transUnitId]['perfetto'] = TRUE;
@@ -162,9 +164,11 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 			if (isset($value[$toLang]) && $value[$toLang] != '') {
 				$matrixToSave[$translationUnit] = $originalMatrix[$translationUnit];
 				if (isset($matrixToSave[$translationUnit]['target'])) {
-					$matrixToSave[$translationUnit]['oldTarget'] = $matrixToSave[$translationUnit]['target'];
+					$matrixToSave[$translationUnit]['oldTarget'] = $this->normalizeInputString($matrixToSave[$translationUnit]['target']);
 				}
 				$matrixToSave[$translationUnit]['target'] = $value[$toLang];
+				$this->normalizeInputString($matrixToSave[$translationUnit]['source']);
+				$this->normalizeInputString($matrixToSave[$translationUnit]['target']);
 			}
 		}
 		return $matrixToSave;
@@ -188,9 +192,9 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 		$sourceLang = $items['sourceLocale']->getLanguage();
 		foreach ($items['translationUnits'] as $unitId => $value) {
 			if ($sourceLang !== $editLang) {
-				$matrix[$unitId]['target'] = $value[0]['target'];
+				$matrix[$unitId]['target'] = $this->normalizeOutputString($value[0]['target']);
 			}
-			$matrix[$unitId]['source'] = $value[0]['source'];
+			$matrix[$unitId]['source'] = $this->normalizeOutputString($value[0]['source']);
 			$matrix[$unitId]['transUnitId'] = $unitId;
 		}
 
@@ -215,9 +219,13 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 			if (isset($value[$editLang])) {
 				$matrixToSave[$editUnit] = $originalMatrix[$editUnit];
 				if (isset($matrixToSave[$editUnit][$editTag])) {
-					$matrixToSave[$editUnit]['old' . ucfirst($editTag)] = $matrixToSave[$editUnit][$editTag];
+					$matrixToSave[$editUnit]['old' . ucfirst($editTag)] = $this->normalizeInputString($matrixToSave[$editUnit][$editTag]);
 				}
 				$matrixToSave[$editUnit][$editTag] = $value[$editLang];
+			}
+			$this->normalizeInputString($matrixToSave[$editUnit]['source']);
+			if (isset($matrixToSave[$editUnit]['target'])) {
+				$this->normalizeInputString($matrixToSave[$editUnit]['target']);
 			}
 		}
 
@@ -313,5 +321,34 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 		if (is_file($path)) {
 			copy($path, $path . '_backup_' . time());
 		}
+	}
+
+	/**
+	 * Normalizes the input string to be saved:
+	 * Adds CDATA tag for strings containing HTML
+	 * Converts special chars
+	 *
+	 * @param string $string
+	 * @return string
+	 */
+	protected function normalizeInputString(&$string) {
+		if($string !== strip_tags($string)) {
+			$string = '<![CDATA[' . $string . ']]>';
+		} else {
+			$string = htmlspecialchars($string);
+		}
+		return $string;
+	}
+
+	/**
+	 * Normalizes the output string:
+	 * Removes xliff formatting tabs and spaces
+	 *
+	 * @param string $string
+	 * @return string
+	 */
+	protected function normalizeOutputString(&$string) {
+		$string = trim(preg_replace('/\t+| {2,}/', '', $string));
+		return $string;
 	}
 }
