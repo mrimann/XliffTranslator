@@ -94,8 +94,7 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 	 * @param string $sourceName name of the xlf source file
 	 * @return array the translation matrix
 	 */
-	public function generateTranslationMatrix($packageKey, $fromLang, $toLang, $sourceName = 'Main')
-	{
+	public function generateTranslationMatrix($packageKey, $fromLang, $toLang, $sourceName = 'Main') {
 		$matrix = array();
 		$fromLocale = new \TYPO3\Flow\I18n\Locale($fromLang);
 		$fromItems = $this->getXliffDataAsArray($packageKey, $sourceName, $fromLocale);
@@ -183,8 +182,7 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 	 * @param string $sourceName name of the xlf source file
 	 * @return array
 	 */
-	public function generateEditMatrix($packageKey, $editLang, $sourceName = 'Main')
-	{
+	public function generateEditMatrix($packageKey, $editLang, $sourceName = 'Main') {
 		$matrix = array();
 		$locale = new \TYPO3\Flow\I18n\Locale($editLang);
 		$items = $this->getXliffDataAsArray($packageKey, $sourceName, $locale);
@@ -233,28 +231,29 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 	}
 
 	/**
-	 * Saves the new Xliff file and backups the existing one
+	 * Render and save the Xliff file
 	 *
 	 * @param string $packageKey
-	 * @param string $language
-	 * @param string $content
+	 * @param string $sourceLang
+	 * @param string $targetLang
+	 * @param array $matrixToSave
+	 * @param \TYPO3\Flow\Mvc\Controller\ControllerContext $context
 	 * @param string $sourceName
 	 */
-	public function saveXliffFile($packageKey, $language, $content, $sourceName = 'Main') {
-		// backup the original file before overwriting
-		$this->backupXliffFile($packageKey, $language, $sourceName);
-		$outputPath = $this->getFilePath($packageKey, $language, $sourceName);
+	public function saveXliff($packageKey, $sourceLang, $targetLang, array $matrixToSave, \TYPO3\Flow\Mvc\Controller\ControllerContext $context, $sourceName = 'Main') {
+		$xliffView = new \TYPO3\Fluid\View\TemplateView();
+		$path = 'resource://Mrimann.XliffTranslator/Private/Templates/Standard/Xliff.xlf';
 
-		// check if the file exists (or create an empty file in case these are the first translations)
-		if (!is_dir(dirname($outputPath))) {
-			mkdir(dirname($outputPath), 0777, TRUE);
-		}
-		if (!is_file($outputPath)) {
-			touch($outputPath);
-		}
+		$xliffView->setControllerContext($context);
+		$xliffView->setTemplatePathAndFilename($path);
 
-		// write the file
-		file_put_contents($outputPath, $content);
+		$xliffView->assign('sourceLang', $sourceLang);
+		$xliffView->assign('targetLang', $targetLang);
+		$xliffView->assign('matrixToSave', $matrixToSave);
+		$xliffContent = $xliffView->render();
+
+		$this->backupXliffFile($packageKey, $targetLang, $sourceName);
+		$this->saveXliffFile($packageKey, $targetLang, $xliffContent, $sourceName);
 	}
 
 	/**
@@ -321,6 +320,29 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 		if (is_file($path)) {
 			copy($path, $path . '_backup_' . time());
 		}
+	}
+
+	/**
+	 * Saves the new Xliff file and backups the existing one
+	 *
+	 * @param string $packageKey
+	 * @param string $language
+	 * @param string $content
+	 * @param string $sourceName
+	 */
+	protected function saveXliffFile($packageKey, $language, $content, $sourceName = 'Main') {
+		$outputPath = $this->getFilePath($packageKey, $language, $sourceName);
+
+		// check if the file exists (or create an empty file in case these are the first translations)
+		if (!is_dir(dirname($outputPath))) {
+			mkdir(dirname($outputPath), 0777, TRUE);
+		}
+		if (!is_file($outputPath)) {
+			touch($outputPath);
+		}
+
+		// write the file
+		file_put_contents($outputPath, $content);
 	}
 
 	/**

@@ -71,7 +71,7 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 	 */
 	public function updateAction($packageKey, $editLang, array $editUnits, $sourceName = 'Main') {
 		list($sourceLang, $matrixToSave) = $this->xliffTranslatorService->getEditMatrixToSave($packageKey, $editLang, $editUnits, $sourceName);
-		$this->saveXliff($packageKey, $sourceLang, $editLang, $matrixToSave, $sourceName);
+		$this->xliffTranslatorService->saveXliff($packageKey, $sourceLang, $editLang, $matrixToSave, $this->controllerContext, $sourceName);
 
 		// redirect the user back to the edit page
 		$this->addFlashMessage(
@@ -122,7 +122,7 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 	 */
 	public function saveTranslationsAction($packageKey, $fromLang, $toLang, array $translationUnits, $sourceName = 'Main') {
 		$matrixToSave = $this->xliffTranslatorService->getTranslationMatrixToSave($packageKey, $fromLang, $toLang, $translationUnits, $sourceName);
-		$this->saveXliff($packageKey, $fromLang, $toLang, $matrixToSave, $sourceName);
+		$this->xliffTranslatorService->saveXliff($packageKey, $fromLang, $toLang, $matrixToSave, $this->getControllerContext(), $sourceName);
 
 		// redirect the user back to the translation page
 		$this->addFlashMessage(
@@ -142,29 +142,6 @@ class StandardController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 				'toLang' => $toLang
 			)
 		);
-	}
-
-	/**
-	 * @param string $packageKey
-	 * @param string $matrixToSave
-	 * @param string $sourceLang
-	 * @param string $targetLang
-	 * @param string $sourceName
-	 */
-	protected function saveXliff($packageKey, $sourceLang, $targetLang, $matrixToSave, $sourceName)
-	{
-		// Create the Xliff file to be written to disk later on
-		$xliffView = new \TYPO3\Fluid\View\TemplateView();
-		$path = 'resource://Mrimann.XliffTranslator/Private/Templates/Standard/Xliff.xlf';
-
-		$xliffView->setControllerContext($this->getControllerContext());
-		$xliffView->setTemplatePathAndFilename($path);
-
-		$xliffView->assign('sourceLang', $sourceLang);
-		$xliffView->assign('targetLang', $targetLang);
-		$xliffView->assign('matrixToSave', $matrixToSave);
-		$xliffContent = $xliffView->render();
-		$this->xliffTranslatorService->saveXliffFile($packageKey, $targetLang, $xliffContent, $sourceName);
 	}
 }
 

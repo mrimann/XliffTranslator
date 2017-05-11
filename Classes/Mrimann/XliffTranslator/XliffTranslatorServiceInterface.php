@@ -79,13 +79,15 @@ interface XliffTranslatorServiceInterface
 	public function getEditMatrixToSave($packageKey, $editLang, array $editUnits, $sourceName = 'Main');
 
 	/**
-	 * Saves the new Xliff file
+	 * Render and save the Xliff file
 	 *
 	 * @param string $packageKey
-	 * @param string $language
-	 * @param string $content
-	 * @param string $sourceName file name
+	 * @param string $sourceLang
+	 * @param string $targetLang
+	 * @param array $matrixToSave
+	 * @param \TYPO3\Flow\Mvc\Controller\ControllerContext $context
+	 * @param string $sourceName
 	 */
-	public function saveXliffFile($packageKey, $language, $content, $sourceName = 'Main');
+	public function saveXliff($packageKey, $sourceLang, $targetLang, array $matrixToSave, \TYPO3\Flow\Mvc\Controller\ControllerContext $context, $sourceName = 'Main');
 
 }
