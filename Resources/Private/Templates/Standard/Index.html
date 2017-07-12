@@ -8,7 +8,7 @@
 
 		<f:for each="{packages}" as="package">
 			<li>
-				<f:link.action action="translate" arguments="{packageKey: package.packageKey}">
+				<f:link.action action="package" arguments="{packageKey: package.packageKey}">
 					{package.packageKey}
 				</f:link.action>
 			</li>

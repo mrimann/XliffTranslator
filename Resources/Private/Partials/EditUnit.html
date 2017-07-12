@@ -1,0 +1,12 @@
+<div class="row translationUnit editUnit">
+	<div class="span11">
+		<f:if condition="{sourceLang} != {editLang}">
+			<f:then>
+				<f:form.textarea name="editUnits[{editUnit.transUnitId}][{editLang}]" value="{editUnit.target}" class="input-xxxlarge" />
+			</f:then>
+			<f:else>
+				<f:form.textarea name="editUnits[{editUnit.transUnitId}][{editLang}]" value="{editUnit.source}" class="input-xxxlarge" />
+			</f:else>
+		</f:if>
+	</div>
+</div>
