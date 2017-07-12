@@ -30,6 +30,12 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 
 	/**
 	 * @Flow\Inject
+	 * @var \TYPO3\Flow\Cache\CacheManager
+	 */
+	protected $cacheManager;
+
+	/**
+	 * @Flow\Inject
 	 * @var \TYPO3\Flow\I18n\Service
 	 */
 	protected $localizationService;
@@ -254,6 +260,8 @@ class XliffTranslatorService implements XliffTranslatorServiceInterface
 
 		$this->backupXliffFile($packageKey, $targetLang, $sourceName);
 		$this->saveXliffFile($packageKey, $targetLang, $xliffContent, $sourceName);
+
+		$this->cacheManager->getCache('Flow_I18n_XmlModelCache')->flush();
 	}
 
 	/**
